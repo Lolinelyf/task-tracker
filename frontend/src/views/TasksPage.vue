@@ -9,7 +9,9 @@ import TaskFilter from '../components/tasks/TaskFilter.vue'
 import Pagination from '../components/Pagination.vue'
 import BaseButton from '../components/common/BaseButton.vue'
 import BaseModal from '../components/common/BaseModal.vue'
+import BaseConfirmModal from '../components/common/BaseConfirmModal.vue'
 import TaskForm from '../components/tasks/TaskForm.vue'
+import type { Task } from '../types'
 
 const router = useRouter()
 const tasksStore = useTasksStore()
@@ -21,6 +23,10 @@ const currentPage = ref(1)
 const totalPages = ref(1)
 
 const modalOpen = ref(false)
+const editingTask = ref<Task | null>(null)
+
+const confirmModalOpen = ref(false)
+const deletingTaskId = ref<number | null>(null)
 
 const logout = () => {
   localStorage.removeItem('token')
@@ -40,6 +46,75 @@ const handleCreateTask = async (data: {
     show('Задача создана', 'success')
   } else {
     show(result.error || 'Ошибка создания задачи', 'error')
+  }
+}
+
+const handleEditTask = (id: number) => {
+  const task = tasksStore.tasks.find((t) => t.id === id)
+  if (task) {
+    editingTask.value = task
+    modalOpen.value = true
+  }
+}
+
+const handleUpdateTask = async (data: {
+  title: string
+  description: string
+  status: 'todo' | 'in-progress' | 'done'
+  priority: 'low' | 'medium' | 'high'
+}) => {
+  if (!editingTask.value) return
+
+  const result = await tasksStore.updateTask(editingTask.value.id, data)
+
+  if (result.success) {
+    modalOpen.value = false
+    editingTask.value = null
+    show('Задача обновлена', 'success')
+  } else {
+    show(result.error || 'Ошибка обновления задачи', 'error')
+  }
+}
+
+const handleCloseModal = () => {
+  modalOpen.value = false
+  editingTask.value = null
+}
+
+const handleDeleteTask = (id: number) => {
+  deletingTaskId.value = id
+  confirmModalOpen.value = true
+}
+
+const handleConfirmDelete = async () => {
+  if (deletingTaskId.value === null) return
+
+  const result = await tasksStore.deleteTask(deletingTaskId.value)
+
+  if (result.success) {
+    confirmModalOpen.value = false
+    deletingTaskId.value = null
+    show('Задача удалена', 'success')
+  } else {
+    show(result.error || 'Ошибка удаления задачи', 'error')
+  }
+}
+
+const handleCancelDelete = () => {
+  confirmModalOpen.value = false
+  deletingTaskId.value = null
+}
+
+const handleFormSubmit = (data: {
+  title: string
+  description: string
+  status: 'todo' | 'in-progress' | 'done'
+  priority: 'low' | 'medium' | 'high'
+}) => {
+  if (editingTask.value) {
+    handleUpdateTask(data)
+  } else {
+    handleCreateTask(data)
   }
 }
 </script>
@@ -64,10 +139,7 @@ const handleCreateTask = async (data: {
         <TaskFilter v-model="statusFilter" />
       </div>
 
-      <TaskList
-        @edit="(id) => console.log('Edit task', id)"
-        @delete="(id) => console.log('Delete task', id)"
-      />
+      <TaskList @edit="handleEditTask" @delete="handleDeleteTask" />
 
       <Pagination
         :current-page="currentPage"
@@ -76,13 +148,26 @@ const handleCreateTask = async (data: {
       />
     </main>
 
-    <!-- Модальное окно создания задачи -->
-    <BaseModal :open="modalOpen" title="Новая задача" @close="modalOpen = false">
+    <BaseModal
+      :open="modalOpen"
+      :title="editingTask ? 'Редактировать задачу' : 'Новая задача'"
+      @close="handleCloseModal"
+    >
       <TaskForm
-        :loading="tasksStore.creating"
-        @submit="handleCreateTask"
-        @cancel="modalOpen = false"
+        :initial-data="editingTask || undefined"
+        :loading="tasksStore.creating || tasksStore.updating"
+        @submit="handleFormSubmit"
+        @cancel="handleCloseModal"
       />
     </BaseModal>
+
+    <BaseConfirmModal
+      :open="confirmModalOpen"
+      title="Удалить задачу?"
+      message="Вы уверены, что хотите удалить эту задачу? Это действие невозможно отменить."
+      :loading="tasksStore.deleting"
+      @confirm="handleConfirmDelete"
+      @cancel="handleCancelDelete"
+    />
   </div>
 </template>

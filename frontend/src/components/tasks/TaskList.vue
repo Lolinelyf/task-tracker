@@ -3,8 +3,10 @@ import { onMounted } from 'vue'
 import { useTasksStore } from '../../stores/tasksStore'
 import TaskCard from './TaskCard.vue'
 import BaseButton from '../common/BaseButton.vue'
+import { useNotification } from '../../composables/useNotification'
 
 const tasksStore = useTasksStore()
+const { show } = useNotification()
 
 onMounted(() => {
   tasksStore.fetchTasks()
@@ -14,6 +16,16 @@ defineEmits<{
   (e: 'edit', id: number): void
   (e: 'delete', id: number): void
 }>()
+
+const handleChangeStatus = async (id: number, status: string) => {
+  const result = await tasksStore.changeTaskStatus(id, status as 'todo' | 'in-progress' | 'done')
+
+  if (result.success) {
+    show('Статус задачи обновлен', 'success')
+  } else {
+    show(result.error || 'Ошибка изменения статуса', 'error')
+  }
+}
 </script>
 
 <template>
@@ -49,8 +61,10 @@ defineEmits<{
       :status="task.status"
       :priority="task.priority"
       :createdAt="task.createdAt"
+      :changing-status="tasksStore.changingStatus"
       @edit="$emit('edit', task.id)"
       @delete="$emit('delete', task.id)"
+      @change-status="(status) => handleChangeStatus(task.id, status)"
     />
   </div>
 </template>

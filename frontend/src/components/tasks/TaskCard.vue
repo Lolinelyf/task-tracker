@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import BaseButton from '../common/BaseButton.vue'
+import BaseSelect from '../common/BaseSelect.vue'
 
 defineProps<{
   title: string
@@ -7,11 +8,13 @@ defineProps<{
   status: string
   priority: string
   createdAt: string
+  changingStatus?: boolean
 }>()
 
 defineEmits<{
   (e: 'edit'): void
   (e: 'delete'): void
+  (e: 'changeStatus', status: string): void
 }>()
 
 const getStatusLabel = (status: string) => {
@@ -49,13 +52,20 @@ const getPriorityColor = (priority: string) => {
   }
   return map[priority] || 'bg-neutral-100 text-neutral-700'
 }
+
+const statusOptions = [
+  { value: 'todo', label: 'К выполнению' },
+  { value: 'in-progress', label: 'В процессе' },
+  { value: 'done', label: 'Готово' },
+]
 </script>
 
 <template>
   <div
     class="bg-white rounded-xl p-4 border border-neutral-200 hover:border-neutral-300 transition-colors"
   >
-    <div class="flex items-start justify-between gap-4">
+    <!-- Верхняя часть: заголовок + теги -->
+    <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
       <div class="flex-1 min-w-0">
         <h3 class="font-medium text-neutral-900 truncate">{{ title }}</h3>
         <p class="text-sm text-neutral-600 mt-1 line-clamp-2">
@@ -64,20 +74,35 @@ const getPriorityColor = (priority: string) => {
       </div>
       <div class="flex items-center gap-2 flex-shrink-0">
         <span
-          class="text-xs px-2 py-1 rounded-full font-medium"
+          class="text-xs px-2 py-1 rounded-full font-medium whitespace-nowrap"
           :class="getPriorityColor(priority)"
         >
           {{ getPriorityLabel(priority) }}
         </span>
-        <span class="text-xs px-2 py-1 rounded-full font-medium" :class="getStatusColor(status)">
+        <span
+          class="text-xs px-2 py-1 rounded-full font-medium whitespace-nowrap"
+          :class="getStatusColor(status)"
+        >
           {{ getStatusLabel(status) }}
         </span>
       </div>
     </div>
 
-    <div class="flex items-center justify-between mt-3 pt-3 border-t border-neutral-100">
+    <div
+      class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mt-3 pt-3 border-t border-neutral-100"
+    >
       <span class="text-xs text-neutral-500">{{ createdAt }}</span>
-      <div class="flex items-center gap-2">
+
+      <div class="flex flex-wrap items-center gap-2">
+        <BaseSelect
+          :model-value="status"
+          :options="statusOptions"
+          size="sm"
+          :disabled="changingStatus"
+          class="w-24"
+          @update:model-value="$emit('changeStatus', $event)"
+        />
+
         <BaseButton variant="secondary" size="sm" @click="$emit('edit')">
           Редактировать
         </BaseButton>

@@ -24,6 +24,7 @@ defineEmits<{
           <button
             class="text-neutral-500 hover:text-neutral-900 transition-colors text-2xl"
             @click="$emit('close')"
+            type="button"
           >
             ×
           </button>

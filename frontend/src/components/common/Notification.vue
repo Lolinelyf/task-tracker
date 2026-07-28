@@ -10,26 +10,28 @@ const getTypeClass = (type: string) => {
     case 'success':
       return 'bg-green-500 text-white'
     default:
-      return 'bg-blue-500 text-white'
+      return 'bg-neutral-900 text-white'
   }
 }
 </script>
 
 <template>
-  <div class="fixed top-4 right-4 z-50 space-y-2 max-w-md w-full">
-    <div
-      v-for="notification in notifications"
-      :key="notification.id"
-      class="p-4 rounded-lg shadow-lg flex justify-between items-start animate-slide-in"
-      :class="getTypeClass(notification.type)"
-    >
-      <span>{{ notification.message }}</span>
-      <button
-        @click="remove(notification.id)"
-        class="ml-4 text-white hover:text-neutral-200 transition-colors"
+  <div class="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-full max-w-md px-4">
+    <div class="space-y-2">
+      <div
+        v-for="notification in notifications"
+        :key="notification.id"
+        class="p-4 rounded-lg shadow-lg flex justify-between items-start animate-slide-in"
+        :class="getTypeClass(notification.type)"
       >
-        ×
-      </button>
+        <span class="text-sm break-words flex-1">{{ notification.message }}</span>
+        <button
+          @click="remove(notification.id)"
+          class="ml-4 text-white hover:text-neutral-200 transition-colors flex-shrink-0 text-xl leading-none"
+        >
+          ×
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -37,11 +39,11 @@ const getTypeClass = (type: string) => {
 <style scoped>
 @keyframes slideIn {
   from {
-    transform: translateX(100%);
+    transform: translateY(-100%);
     opacity: 0;
   }
   to {
-    transform: translateX(0);
+    transform: translateY(0);
     opacity: 1;
   }
 }

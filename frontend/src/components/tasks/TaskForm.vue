@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import BaseInput from '../common/BaseInput.vue'
+import BaseSelect from '../common/BaseSelect.vue'
 import BaseButton from '../common/BaseButton.vue'
 
 type TaskStatus = 'todo' | 'in-progress' | 'done'
@@ -36,6 +37,18 @@ const priority = ref<TaskPriority>(props.initialData?.priority || 'medium')
 
 const error = ref('')
 
+const statusOptions = [
+  { value: 'todo', label: 'К выполнению' },
+  { value: 'in-progress', label: 'В процессе' },
+  { value: 'done', label: 'Готово' },
+]
+
+const priorityOptions = [
+  { value: 'low', label: 'Низкий' },
+  { value: 'medium', label: 'Средний' },
+  { value: 'high', label: 'Высокий' },
+]
+
 const handleSubmit = () => {
   if (!title.value.trim()) {
     error.value = 'Название обязательно'
@@ -59,7 +72,7 @@ const handleSubmit = () => {
       label="Название"
       v-model="title"
       placeholder="Введите название задачи"
-      :disabled="loading"
+      :disabled="props.loading"
     />
 
     <BaseInput
@@ -67,35 +80,25 @@ const handleSubmit = () => {
       label="Описание"
       v-model="description"
       placeholder="Введите описание"
-      :disabled="loading"
+      :disabled="props.loading"
     />
 
     <div class="grid grid-cols-2 gap-4">
-      <div>
-        <label class="text-sm font-medium text-neutral-700 block mb-1">Статус</label>
-        <select
-          v-model="status"
-          class="w-full px-4 py-2 rounded-lg border border-neutral-200 bg-white focus:outline-none focus:ring-2 focus:ring-neutral-600"
-          :disabled="loading"
-        >
-          <option value="todo">К выполнению</option>
-          <option value="in-progress">В процессе</option>
-          <option value="done">Готово</option>
-        </select>
-      </div>
+      <BaseSelect
+        id="status"
+        label="Статус"
+        v-model="status"
+        :options="statusOptions"
+        :disabled="props.loading"
+      />
 
-      <div>
-        <label class="text-sm font-medium text-neutral-700 block mb-1">Приоритет</label>
-        <select
-          v-model="priority"
-          class="w-full px-4 py-2 rounded-lg border border-neutral-200 bg-white focus:outline-none focus:ring-2 focus:ring-neutral-600"
-          :disabled="loading"
-        >
-          <option value="low">Низкий</option>
-          <option value="medium">Средний</option>
-          <option value="high">Высокий</option>
-        </select>
-      </div>
+      <BaseSelect
+        id="priority"
+        label="Приоритет"
+        v-model="priority"
+        :options="priorityOptions"
+        :disabled="props.loading"
+      />
     </div>
 
     <div v-if="error" class="text-sm text-red-500">
@@ -103,11 +106,16 @@ const handleSubmit = () => {
     </div>
 
     <div class="flex gap-2 justify-end pt-2">
-      <BaseButton variant="secondary" @click="$emit('cancel')" :disabled="loading">
+      <BaseButton
+        variant="secondary"
+        type="button"
+        @click="$emit('cancel')"
+        :disabled="props.loading"
+      >
         Отмена
       </BaseButton>
-      <BaseButton type="submit" variant="primary" :loading="loading">
-        {{ initialData ? 'Сохранить' : 'Создать' }}
+      <BaseButton type="submit" variant="primary" :loading="props.loading">
+        {{ props.initialData ? 'Сохранить' : 'Создать' }}
       </BaseButton>
     </div>
   </form>
