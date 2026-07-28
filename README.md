@@ -77,9 +77,9 @@ Password: 12345678
 
 ## 📖 Документация
 
-- [API Schema](./docs/api-schema.md)
-- [Frontend](./docs/frontend.md)
-- [Mock API](./docs/mock-api.md)
+- [API Schema](./docs/master/mock-api/api-schema.md)
+- [Frontend](./docs/master/frontend/README.md)
+- [Mock API](./docs/master/mock-api/README.md)
 
 ## 📄 Лицензия
 
