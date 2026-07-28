@@ -12,42 +12,7 @@ const router = useRouter()
 const search = ref('')
 const statusFilter = ref('all')
 const currentPage = ref(1)
-const totalPages = ref(3)
-
-const tasks = ref([
-  {
-    id: 1,
-    title: 'Настроить окружение',
-    description: 'Установить зависимости проекта',
-    status: 'todo',
-    priority: 'medium',
-    createdAt: '01.07.2026',
-  },
-  {
-    id: 2,
-    title: 'Сверстать страницу логина',
-    description: 'Форма email + пароль',
-    status: 'in-progress',
-    priority: 'high',
-    createdAt: '02.07.2026',
-  },
-  {
-    id: 3,
-    title: 'Настроить Pinia store',
-    description: 'authStore и tasksStore',
-    status: 'done',
-    priority: 'high',
-    createdAt: '03.07.2026',
-  },
-  {
-    id: 4,
-    title: 'Написать README',
-    description: 'Инструкция по запуску',
-    status: 'todo',
-    priority: 'low',
-    createdAt: '04.07.2026',
-  },
-])
+const totalPages = ref(1)
 
 const logout = () => {
   localStorage.removeItem('token')
@@ -61,10 +26,8 @@ const logout = () => {
       <div class="max-w-6xl mx-auto flex items-center justify-between">
         <h1 class="text-xl font-bold text-neutral-900">Задачи</h1>
         <div class="flex items-center gap-4">
-          <div class="flex items-center gap-4">
-            <BaseButton variant="primary" size="sm"> + Новая задача </BaseButton>
-            <BaseButton variant="secondary" size="sm" @click="logout"> Выйти </BaseButton>
-          </div>
+          <BaseButton variant="primary" size="sm"> + Новая задача </BaseButton>
+          <BaseButton variant="secondary" size="sm" @click="logout"> Выйти </BaseButton>
         </div>
       </div>
     </header>
@@ -74,11 +37,12 @@ const logout = () => {
         <TaskSearch v-model="search" />
         <TaskFilter v-model="statusFilter" />
       </div>
+
       <TaskList
-        :tasks="tasks"
         @edit="(id) => console.log('Edit task', id)"
         @delete="(id) => console.log('Delete task', id)"
       />
+
       <Pagination
         :current-page="currentPage"
         :total-pages="totalPages"
