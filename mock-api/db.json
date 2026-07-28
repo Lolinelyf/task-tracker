@@ -4,7 +4,7 @@
       "id": 1,
       "title": "Настроить окружение",
       "description": "Установить зависимости проекта",
-      "status": "todo",
+      "status": "done",
       "priority": "medium",
       "createdAt": "2026-07-01T10:00:00.000Z"
     },
@@ -37,7 +37,7 @@
       "description": "Описание придумаете сами",
       "status": "todo",
       "priority": "high",
-      "createdAt": "2026-07-28T13:04:24.730Z",
+      "createdAt": "2026-07-28T13:21:39.471Z",
       "id": 5
     }
   ],
