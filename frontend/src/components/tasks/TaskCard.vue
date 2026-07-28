@@ -53,6 +53,16 @@ const getPriorityColor = (priority: string) => {
   return map[priority] || 'bg-neutral-100 text-neutral-700'
 }
 
+const formatDate = (date: string) => {
+  const d = new Date(date)
+  const hours = String(d.getHours()).padStart(2, '0')
+  const minutes = String(d.getMinutes()).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  const month = String(d.getMonth() + 1).padStart(2, '0')
+  const year = d.getFullYear()
+  return `${hours}:${minutes} ${day}.${month}.${year}`
+}
+
 const statusOptions = [
   { value: 'todo', label: 'К выполнению' },
   { value: 'in-progress', label: 'В процессе' },
@@ -64,7 +74,6 @@ const statusOptions = [
   <div
     class="bg-white rounded-xl p-4 border border-neutral-200 hover:border-neutral-300 transition-colors"
   >
-    <!-- Верхняя часть: заголовок + теги -->
     <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
       <div class="flex-1 min-w-0">
         <h3 class="font-medium text-neutral-900 truncate">{{ title }}</h3>
@@ -91,7 +100,7 @@ const statusOptions = [
     <div
       class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mt-3 pt-3 border-t border-neutral-100"
     >
-      <span class="text-xs text-neutral-500">{{ createdAt }}</span>
+      <span class="text-xs text-neutral-500">{{ formatDate(createdAt) }}</span>
 
       <div class="flex flex-wrap items-center gap-2">
         <BaseSelect
@@ -99,7 +108,7 @@ const statusOptions = [
           :options="statusOptions"
           size="sm"
           :disabled="changingStatus"
-          class="w-24"
+          class="w-28 sm:w-32 flex-shrink-0"
           @update:model-value="$emit('changeStatus', $event)"
         />
 

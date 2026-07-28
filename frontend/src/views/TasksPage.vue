@@ -19,8 +19,6 @@ const { show } = useNotification()
 
 const search = ref('')
 const statusFilter = ref('all')
-const currentPage = ref(1)
-const totalPages = ref(1)
 
 const modalOpen = ref(false)
 const editingTask = ref<Task | null>(null)
@@ -32,6 +30,8 @@ const logout = () => {
   localStorage.removeItem('token')
   router.push('/login')
 }
+
+tasksStore.fetchTasks()
 
 const handleCreateTask = async (data: {
   title: string
@@ -142,9 +142,9 @@ const handleFormSubmit = (data: {
       <TaskList @edit="handleEditTask" @delete="handleDeleteTask" />
 
       <Pagination
-        :current-page="currentPage"
-        :total-pages="totalPages"
-        @update:page="(page) => (currentPage = page)"
+        :current-page="tasksStore.currentPage"
+        :total-pages="tasksStore.totalPages"
+        @update:page="tasksStore.setPage"
       />
     </main>
 

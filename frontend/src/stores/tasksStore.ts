@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import api from '../services/api'
 import type { Task } from '../types'
 
@@ -12,18 +12,35 @@ export const useTasksStore = defineStore('tasks', () => {
   const deleting = ref(false)
   const changingStatus = ref(false)
 
+  // Пагинация
+  const currentPage = ref(1)
+  const itemsPerPage = ref(5)
+  const totalItems = ref(0)
+  const totalPages = computed(() => Math.ceil(totalItems.value / itemsPerPage.value))
+
   const fetchTasks = async () => {
     loading.value = true
     error.value = null
 
     try {
-      const response = await api.get<Task[]>('/tasks')
+      const response = await api.get<Task[]>('/tasks', {
+        params: {
+          _page: currentPage.value,
+          _limit: itemsPerPage.value,
+        },
+      })
       tasks.value = response.data
+      totalItems.value = Number(response.headers['x-total-count']) || 0
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Ошибка загрузки задач'
     } finally {
       loading.value = false
     }
+  }
+
+  const setPage = (page: number) => {
+    currentPage.value = page
+    fetchTasks()
   }
 
   const createTask = async (data: Omit<Task, 'id' | 'createdAt'>) => {
@@ -35,7 +52,10 @@ export const useTasksStore = defineStore('tasks', () => {
         ...data,
         createdAt: new Date().toISOString(),
       })
-      tasks.value.unshift(response.data)
+      if (currentPage.value === 1) {
+        tasks.value.unshift(response.data)
+      }
+      totalItems.value += 1
       return { success: true, task: response.data }
     } catch (err: any) {
       const message = err.response?.data?.message || 'Ошибка создания задачи'
@@ -73,6 +93,7 @@ export const useTasksStore = defineStore('tasks', () => {
     try {
       await api.delete(`/tasks/${id}`)
       tasks.value = tasks.value.filter((t) => t.id !== id)
+      totalItems.value -= 1
       return { success: true }
     } catch (err: any) {
       const message = err.response?.data?.message || 'Ошибка удаления задачи'
@@ -111,7 +132,12 @@ export const useTasksStore = defineStore('tasks', () => {
     updating,
     deleting,
     changingStatus,
+    currentPage,
+    itemsPerPage,
+    totalItems,
+    totalPages,
     fetchTasks,
+    setPage,
     createTask,
     updateTask,
     deleteTask,
