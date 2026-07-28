@@ -12,23 +12,28 @@ export const useTasksStore = defineStore('tasks', () => {
   const deleting = ref(false)
   const changingStatus = ref(false)
 
-  // Пагинация
   const currentPage = ref(1)
   const itemsPerPage = ref(5)
   const totalItems = ref(0)
   const totalPages = computed(() => Math.ceil(totalItems.value / itemsPerPage.value))
+
+  const statusFilter = ref<string>('all')
 
   const fetchTasks = async () => {
     loading.value = true
     error.value = null
 
     try {
-      const response = await api.get<Task[]>('/tasks', {
-        params: {
-          _page: currentPage.value,
-          _limit: itemsPerPage.value,
-        },
-      })
+      const params: Record<string, any> = {
+        _page: currentPage.value,
+        _limit: itemsPerPage.value,
+      }
+
+      if (statusFilter.value !== 'all') {
+        params.status = statusFilter.value
+      }
+
+      const response = await api.get<Task[]>('/tasks', { params })
       tasks.value = response.data
       totalItems.value = Number(response.headers['x-total-count']) || 0
     } catch (err: any) {
@@ -40,6 +45,12 @@ export const useTasksStore = defineStore('tasks', () => {
 
   const setPage = (page: number) => {
     currentPage.value = page
+    fetchTasks()
+  }
+
+  const setStatusFilter = (status: string) => {
+    statusFilter.value = status
+    currentPage.value = 1
     fetchTasks()
   }
 
@@ -136,8 +147,10 @@ export const useTasksStore = defineStore('tasks', () => {
     itemsPerPage,
     totalItems,
     totalPages,
+    statusFilter,
     fetchTasks,
     setPage,
+    setStatusFilter,
     createTask,
     updateTask,
     deleteTask,

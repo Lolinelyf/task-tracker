@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useTasksStore } from '../stores/tasksStore'
 import { useNotification } from '../composables/useNotification'
@@ -18,7 +18,6 @@ const tasksStore = useTasksStore()
 const { show } = useNotification()
 
 const search = ref('')
-const statusFilter = ref('all')
 
 const modalOpen = ref(false)
 const editingTask = ref<Task | null>(null)
@@ -32,6 +31,13 @@ const logout = () => {
 }
 
 tasksStore.fetchTasks()
+
+watch(
+  () => tasksStore.statusFilter,
+  () => {
+    tasksStore.fetchTasks()
+  }
+)
 
 const handleCreateTask = async (data: {
   title: string
@@ -136,7 +142,7 @@ const handleFormSubmit = (data: {
     <main class="max-w-6xl mx-auto px-4 py-6">
       <div class="flex flex-col sm:flex-row gap-4 mb-6">
         <TaskSearch v-model="search" />
-        <TaskFilter v-model="statusFilter" />
+        <TaskFilter v-model="tasksStore.statusFilter" />
       </div>
 
       <TaskList @edit="handleEditTask" @delete="handleDeleteTask" />
