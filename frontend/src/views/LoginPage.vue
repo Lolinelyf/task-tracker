@@ -1,5 +1,17 @@
 <script setup lang="ts">
+import { onMounted } from 'vue'
 import AuthForm from '../components/auth/AuthForm.vue'
+import { useNotification } from '../composables/useNotification'
+
+const { show } = useNotification()
+
+onMounted(() => {
+  const sessionExpired = localStorage.getItem('session_expired')
+  if (sessionExpired === 'true') {
+    localStorage.removeItem('session_expired')
+    show('Ваша сессия истекла. Пожалуйста, войдите заново.', 'error', 5000)
+  }
+})
 </script>
 
 <template>
