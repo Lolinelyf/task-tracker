@@ -6,10 +6,18 @@ import { useNotification } from '../composables/useNotification'
 const { show } = useNotification()
 
 onMounted(() => {
+  // Проверяем сессию
   const sessionExpired = localStorage.getItem('session_expired')
   if (sessionExpired === 'true') {
     localStorage.removeItem('session_expired')
     show('Ваша сессия истекла. Пожалуйста, войдите заново.', 'error', 5000)
+  }
+
+  // Проверяем сетевую ошибку
+  const networkError = localStorage.getItem('network_error')
+  if (networkError) {
+    localStorage.removeItem('network_error')
+    show(networkError, 'error', 5000)
   }
 })
 </script>
