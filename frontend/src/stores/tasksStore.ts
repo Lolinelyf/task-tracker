@@ -11,13 +11,13 @@ export const useTasksStore = defineStore('tasks', () => {
   const updating = ref(false)
   const deleting = ref(false)
   const changingStatus = ref(false)
-
   const currentPage = ref(1)
   const itemsPerPage = ref(5)
   const totalItems = ref(0)
   const totalPages = computed(() => Math.ceil(totalItems.value / itemsPerPage.value))
 
   const statusFilter = ref<string>('all')
+  const searchQuery = ref<string>('')
 
   const fetchTasks = async () => {
     loading.value = true
@@ -31,6 +31,10 @@ export const useTasksStore = defineStore('tasks', () => {
 
       if (statusFilter.value !== 'all') {
         params.status = statusFilter.value
+      }
+
+      if (searchQuery.value.trim()) {
+        params.title_like = searchQuery.value.trim()
       }
 
       const response = await api.get<Task[]>('/tasks', { params })
@@ -50,6 +54,12 @@ export const useTasksStore = defineStore('tasks', () => {
 
   const setStatusFilter = (status: string) => {
     statusFilter.value = status
+    currentPage.value = 1
+    fetchTasks()
+  }
+
+  const setSearchQuery = (query: string) => {
+    searchQuery.value = query
     currentPage.value = 1
     fetchTasks()
   }
@@ -148,9 +158,11 @@ export const useTasksStore = defineStore('tasks', () => {
     totalItems,
     totalPages,
     statusFilter,
+    searchQuery,
     fetchTasks,
     setPage,
     setStatusFilter,
+    setSearchQuery,
     createTask,
     updateTask,
     deleteTask,

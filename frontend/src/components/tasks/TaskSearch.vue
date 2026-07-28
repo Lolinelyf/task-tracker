@@ -1,21 +1,24 @@
 <script setup lang="ts">
+import { ref, watch } from 'vue'
+import { useDebounce } from '../../composables/useDebounce'
 import BaseInput from '../common/BaseInput.vue'
 
-defineProps<{
+const props = defineProps<{
   modelValue: string
 }>()
 
-defineEmits<{
+const emit = defineEmits<{
   (e: 'update:modelValue', value: string): void
 }>()
+
+const search = ref(props.modelValue)
+const debouncedSearch = useDebounce(search, 400)
+
+watch(debouncedSearch, (newValue) => {
+  emit('update:modelValue', newValue)
+})
 </script>
 
 <template>
-  <BaseInput
-    :model-value="modelValue"
-    type="text"
-    placeholder="Поиск по названию..."
-    @update:model-value="$emit('update:modelValue', $event)"
-    class="max-w-sm"
-  />
+  <BaseInput v-model="search" type="text" placeholder="Поиск по названию..." class="max-w-sm" />
 </template>

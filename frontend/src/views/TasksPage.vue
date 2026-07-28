@@ -18,7 +18,6 @@ const tasksStore = useTasksStore()
 const { show } = useNotification()
 
 const search = ref('')
-
 const modalOpen = ref(false)
 const editingTask = ref<Task | null>(null)
 
@@ -31,6 +30,10 @@ const logout = () => {
 }
 
 tasksStore.fetchTasks()
+
+watch(search, (newValue) => {
+  tasksStore.setSearchQuery(newValue)
+})
 
 watch(
   () => tasksStore.statusFilter,
