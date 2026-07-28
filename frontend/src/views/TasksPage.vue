@@ -1,7 +1,53 @@
 <script setup lang="ts">
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import TaskList from '../components/tasks/TaskList.vue'
+import TaskSearch from '../components/tasks/TaskSearch.vue'
+import TaskFilter from '../components/tasks/TaskFilter.vue'
+import Pagination from '../components/Pagination.vue'
+import BaseButton from '../components/common/BaseButton.vue'
 
 const router = useRouter()
+
+const search = ref('')
+const statusFilter = ref('all')
+const currentPage = ref(1)
+const totalPages = ref(3)
+
+const tasks = ref([
+  {
+    id: 1,
+    title: 'Настроить окружение',
+    description: 'Установить зависимости проекта',
+    status: 'todo',
+    priority: 'medium',
+    createdAt: '01.07.2026',
+  },
+  {
+    id: 2,
+    title: 'Сверстать страницу логина',
+    description: 'Форма email + пароль',
+    status: 'in-progress',
+    priority: 'high',
+    createdAt: '02.07.2026',
+  },
+  {
+    id: 3,
+    title: 'Настроить Pinia store',
+    description: 'authStore и tasksStore',
+    status: 'done',
+    priority: 'high',
+    createdAt: '03.07.2026',
+  },
+  {
+    id: 4,
+    title: 'Написать README',
+    description: 'Инструкция по запуску',
+    status: 'todo',
+    priority: 'low',
+    createdAt: '04.07.2026',
+  },
+])
 
 const logout = () => {
   localStorage.removeItem('token')
@@ -10,16 +56,34 @@ const logout = () => {
 </script>
 
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-neutral-50">
-    <div class="text-center">
-      <h1 class="text-2xl font-bold text-primary mb-4">Список задач</h1>
-      <p class="text-neutral-600 mb-6">Страница в разработке</p>
-      <button
-        @click="logout"
-        class="px-6 py-2 bg-neutral-200 text-neutral-700 rounded-lg hover:bg-neutral-300 transition-colors"
-      >
-        Выйти
-      </button>
-    </div>
+  <div class="min-h-screen bg-neutral-50">
+    <header class="bg-white border-b border-neutral-200 px-4 py-4">
+      <div class="max-w-6xl mx-auto flex items-center justify-between">
+        <h1 class="text-xl font-bold text-neutral-900">Задачи</h1>
+        <div class="flex items-center gap-4">
+          <div class="flex items-center gap-4">
+            <BaseButton variant="primary" size="sm"> + Новая задача </BaseButton>
+            <BaseButton variant="secondary" size="sm" @click="logout"> Выйти </BaseButton>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 py-6">
+      <div class="flex flex-col sm:flex-row gap-4 mb-6">
+        <TaskSearch v-model="search" />
+        <TaskFilter v-model="statusFilter" />
+      </div>
+      <TaskList
+        :tasks="tasks"
+        @edit="(id) => console.log('Edit task', id)"
+        @delete="(id) => console.log('Delete task', id)"
+      />
+      <Pagination
+        :current-page="currentPage"
+        :total-pages="totalPages"
+        @update:page="(page) => (currentPage = page)"
+      />
+    </main>
   </div>
 </template>
